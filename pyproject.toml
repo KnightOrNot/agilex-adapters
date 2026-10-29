@@ -1,13 +1,52 @@
 [project]
 name = "agilex-adapters"
 version = "0.1.0"
-description = "Add your description here"
+description = "LeRobot PiPER-X and GELLO adapters for an application-owned IPC bridge"
 readme = "README.md"
 authors = [
     { name = "RightOrNot", email = "jue1251665735@outlook.com" }
 ]
-requires-python = ">=3.11"
-dependencies = []
+requires-python = ">=3.12"
+dependencies = ["numpy>=1.26", "pyzmq>=26", "lerobot==0.6.0"]
+
+[project.optional-dependencies]
+app = [
+    "LeLab",
+    "fastapi>=0.115.12",
+    "uvicorn>=0.24",
+    "pillow>=10",
+    "httpx>=0.27",
+    "torch>=2.2.1,<2.12",
+    "torchvision>=0.21,<0.27",
+]
+
+[dependency-groups]
+dev = ["pytest>=8.3", "ruff>=0.9"]
+
+[tool.uv]
+# LeLab's Git source otherwise conflicts with the CPU wheel index. Preserve
+# the extras closure required by its server imports when replacing that source.
+override-dependencies = ["lerobot[accelerate-dep,av-dep,core_scripts,dataset,deepdiff-dep,feetech,hardware,pynput-dep,pyserial-dep,training,viz]==0.6.0"]
+
+[tool.uv.sources]
+lelab = { git = "https://github.com/huggingface/leLab.git", rev = "9b5afaee33baa1d773e499937564f3831d25de22" }
+torch = { index = "pytorch-cpu", marker = "sys_platform == 'linux'" }
+torchvision = { index = "pytorch-cpu", marker = "sys_platform == 'linux'" }
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
 
 [project.scripts]
 agilex-adapters = "agilex_adapters:main"
